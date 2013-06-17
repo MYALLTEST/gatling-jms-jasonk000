@@ -6,6 +6,8 @@ Currently this library runs "synchronously" in the Gatling query threads.
 
 Example
 ===========
+Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named 'jmstestq'.
+
 ```scala
 package com.bluedevel.gatling.jms
 
