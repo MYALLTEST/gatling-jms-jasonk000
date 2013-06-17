@@ -1,6 +1,6 @@
 gatling-jms
 ===========
-A simple JMS Gatling test library.
+A simple JMS Gatling test library. Gatling provides a simple and relatively pretty performance test framework. http://gatling-tool.org/
 
 Currently this library runs "synchronously" in the Gatling query threads.
 
@@ -41,12 +41,23 @@ Currently this library runs synchronously in the Gatling query threads. This mak
 
 TODO
 ===========
-Enable checks on the response message (was it sent with the correct text)
-Enable a null value to flag response->not ok
-Use a protocol configuration registry instead of using the builder
-Enable more input types [over and above TextMessage]
-Enable setting headers on JMS messages (addHeader())
-Add a build script
-Create this as an async handler
+* ADD SOME TESTS
+* Enable checks on the response message (was it sent with the correct text)
+* Enable a null value to flag response->not ok
+* Use a protocol configuration registry instead of using the builder
+* Enable more input types [over and above TextMessage]
+* Enable setting headers on JMS messages (addHeader())
+* Add a build script
+* Convert to an async handler
+  * Take advantage of JMS MessageListener spec, and use JMS message correlation IDs to correlate request and reply
 
+License
+===========
+Copyright jasonk000.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
