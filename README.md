@@ -41,6 +41,7 @@ Currently this library runs synchronously in the Gatling query threads. This mak
 
 TODO
 ===========
+* ADD A BUILD SCRIPT
 * ADD SOME TESTS
 * Enable checks on the response message (was it sent with the correct text)
 * Enable a null value to flag response->not ok
