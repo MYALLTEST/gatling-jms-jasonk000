@@ -2,8 +2,6 @@ gatling-jms
 ===========
 A simple JMS Gatling test library. Gatling provides a simple and relatively pretty performance test framework. http://gatling-tool.org/
 
-Currently this library runs "synchronously" in the Gatling query threads.
-
 Example
 ===========
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named 'jmstestq'.
