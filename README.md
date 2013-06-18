@@ -41,16 +41,7 @@ Currently this library runs synchronously in the Gatling query threads. This mak
 
 TODO
 ===========
-* ADD A BUILD SCRIPT
-* ADD SOME TESTS
-* Enable checks on the response message (was it sent with the correct text)
-* Enable a null value to flag response->not ok
-* Use a protocol configuration registry instead of using the builder
-* Enable more input types [over and above TextMessage]
-* Enable setting headers on JMS messages (addHeader())
-* Add a build script
-* Convert to an async handler
-  * Take advantage of JMS MessageListener spec, and use JMS message correlation IDs to correlate request and reply
+Plenty. See https://github.com/jasonk000/gatling-jms/issues
 
 License
 ===========
