@@ -2,7 +2,6 @@ package com.bluedevel.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
 import akka.actor._
-import io.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * JmsAttributes carries around the JMS settings
@@ -48,7 +47,7 @@ class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
   /**
    * Builds an action instance
    */
-  def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
+  def build(next: ActorRef) =
     system.actorOf(Props(new JmsReqReplyAction(next, attributes)))
 }
 

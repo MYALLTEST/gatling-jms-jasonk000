@@ -1,16 +1,15 @@
 apply plugin: 'scala'
 
-def localMavenRepo = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
-
 repositories {
   maven {
-    url localMavenRepo
     url "http://repository-gatling.forge.cloudbees.com/snapshot/"
   }
   mavenCentral()
+  mavenLocal()
 }
 
 dependencies {
   compile 'org.scala-lang:scala-library:2.10.1'
   compile 'io.gatling:gatling-core:2.0.0-SNAPSHOT'
+  compile 'javax.jms:jms-api:1.1-rev-1'
 }

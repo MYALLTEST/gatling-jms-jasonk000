@@ -2,8 +2,6 @@ gatling-jms
 ===========
 A simple JMS Gatling test library. Gatling provides a simple and relatively pretty performance test framework. http://gatling-tool.org/
 
-Currently this library runs "synchronously" in the Gatling query threads.
-
 Example
 ===========
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named 'jmstestq'.
@@ -35,22 +33,21 @@ class TestJmsDsl extends Simulation {
 }
 ```
 
+Building
+===========
+You'll need to download some JARs from here: http://repository.excilys.com/content/groups/public/
+```
+$ gradle jar
+$ cp ~/code/gatling-jms/build/libs/gatling-jms.jar ~/gatling/libs
+```
+
 Caveats
 ===========
 Currently this library runs synchronously in the Gatling query threads. This makes it susceptible to 'coordinated omission' issues in the results.
 
 TODO
 ===========
-* ADD A BUILD SCRIPT
-* ADD SOME TESTS
-* Enable checks on the response message (was it sent with the correct text)
-* Enable a null value to flag response->not ok
-* Use a protocol configuration registry instead of using the builder
-* Enable more input types [over and above TextMessage]
-* Enable setting headers on JMS messages (addHeader())
-* Add a build script
-* Convert to an async handler
-  * Take advantage of JMS MessageListener spec, and use JMS message correlation IDs to correlate request and reply
+Plenty. See https://github.com/jasonk000/gatling-jms/issues
 
 License
 ===========
