@@ -3,6 +3,7 @@ apply plugin: 'scala'
 repositories {
   maven {
     url "http://repository-gatling.forge.cloudbees.com/snapshot/"
+    url "http://repo.jfrog.org/artifactory/libs-releases/"
   }
   mavenCentral()
   mavenLocal()
@@ -10,6 +11,6 @@ repositories {
 
 dependencies {
   compile 'org.scala-lang:scala-library:2.10.1'
-  compile 'io.gatling:gatling-core:2.0.0-SNAPSHOT'
+  compile 'io.gatling:gatling-core:2.0.0-M2'
   compile 'javax.jms:jms-api:1.1-rev-1'
 }

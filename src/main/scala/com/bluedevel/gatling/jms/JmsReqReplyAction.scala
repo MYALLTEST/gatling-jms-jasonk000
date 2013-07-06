@@ -10,13 +10,17 @@ import java.util.{Hashtable => JHashtable}
 import javax.naming._
 import javax.jms._
 
-class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes) extends Chainable {
-  val client = new SimpleJmsClient(attributes.connFactoryName, attributes.queueName, attributes.jmsUrl,
-    attributes.username, attributes.password, attributes.contextFactory)
+class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes, val protocol: JmsProtocol) extends Chainable {
+  val client = new SimpleJmsClient(protocol.connectionFactoryName,
+    attributes.queueName,
+    protocol.jmsUrl,
+    protocol.username, 
+    protocol.password, 
+    protocol.contextFactory)
 
   def execute(session: io.gatling.core.Predef.Session) {
     val start = nowMillis
-    client.sendMessage(attributes.textMessage)
+    client.sendTextMessage(attributes.textMessage)
     val end = nowMillis
     DataWriter.tell(RequestMessage(session.scenarioName, session.userId, Nil, "test",
       start, end, start, end, OK, None, Nil))
@@ -33,7 +37,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   properties.put(Context.PROVIDER_URL, url)
   username match {
     case None => None
-    case Some(s) => properties.put(Context.SECURITY_PRINCIPAL, s)
+    case Some(s) =>  properties.put(Context.SECURITY_PRINCIPAL, s)
   }
   password match {
     case None => None
@@ -62,10 +66,14 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 
   val consumer = session.createConsumer(replyQ)
 
-  def sendMessage(messageText : String) {
+  def sendTextMessage(messageText : String) {
+    val message = session.createTextMessage(messageText)
+    sendMessage(message)
+  }
+
+  def sendMessage(message : Message) {
     try {
 
-      val message = session.createTextMessage(messageText)
       message.setJMSReplyTo(replyQ)
       producer.send(message)
 

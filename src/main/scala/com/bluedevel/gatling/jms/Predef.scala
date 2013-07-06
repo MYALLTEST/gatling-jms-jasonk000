@@ -10,6 +10,8 @@ object Predef {
    */
   def jms(requestName: String) = JmsBuilder.jms(requestName)
 
+  implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
+
 }
 
 
