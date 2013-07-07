@@ -10,9 +10,13 @@ import java.util.{Hashtable => JHashtable}
 import javax.naming._
 import javax.jms._
 
+/**
+ * Core JMS Action to handle Request-Reply semantics
+ */
 class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes, 
     val protocol: JmsProtocol, val tracker: ActorRef) extends Chainable {
 
+  // define a single response handler; to be used by SimpleJmsClient
   val responseHandler = new MessageListener { 
     def onMessage(m: Message) = m match {
       case tm : TextMessage => tracker ! MessageReceived(tm.getJMSCorrelationID, nowMillis)
@@ -20,6 +24,9 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
     }
   }
 
+  /**
+   * Create a client to refer to
+   */
   val client = new SimpleJmsClient(protocol.connectionFactoryName,
     attributes.queueName,
     protocol.jmsUrl,
@@ -28,78 +35,17 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
     protocol.contextFactory,
     responseHandler)
 
+  /**
+   * Framework calls the execute() method to send a single request
+   */
   def execute(session: io.gatling.core.Predef.Session) {
+    // send the message
     val start = nowMillis
     val msgid = client.sendTextMessage(attributes.textMessage)
     val end = nowMillis
+    // notify the tracker that a message was sent
     tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId)
+    // go to next in chain
     next ! session
   }
 }
-
-class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-    val username: Option[String], val password: Option[String], val contextFactory: String,
-    val responseHandler: MessageListener) {
-
-  // create InitialContext
-  val properties = new JHashtable[String, String]
-  properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
-  properties.put(Context.PROVIDER_URL, url)
-  username match {
-    case None => None
-    case Some(s) =>  properties.put(Context.SECURITY_PRINCIPAL, s)
-  }
-  password match {
-    case None => None
-    case Some(s) => properties.put(Context.SECURITY_CREDENTIALS, s)
-  }
-
-  val ctx = new InitialContext(properties)
-  println("Got InitialContext " + ctx.toString())
-
-  // create QueueConnectionFactory
-  val qcf = (ctx.lookup(qcfName)).asInstanceOf[ConnectionFactory]
-  println("Got ConnectionFactory " + qcf.toString())
-
-  // create QueueConnection
-  val conn = qcf.createConnection()
-  conn.start()
-  val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
-  println("Got Connection " + conn.toString())
-
-  val replyQ = session.createTemporaryQueue()
-
-  val destination = session.createQueue(queueName)
-
-  val producer = session.createProducer(destination)
-  producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
-
-  val consumerQ = session.createConsumer(replyQ)
-  consumerQ.setMessageListener(responseHandler)
-
-  def sendTextMessage(messageText : String): String = {
-    val message = session.createTextMessage(messageText)
-    sendMessage(message)
-  }
-
-  def sendMessage(message: Message): String = {
-    try {
-
-      message.setJMSReplyTo(replyQ)
-      producer.send(message)
-      // return the message id
-      message.getJMSMessageID
-
-    } catch {
-
-      case e : Exception =>
-        println("Got other/unexpected exception")
-        e.printStackTrace(System.err)
-        System.exit(0)
-        "<< never get here, system exit will solve it >>"
-
-    }
-  }
-
-}
-
