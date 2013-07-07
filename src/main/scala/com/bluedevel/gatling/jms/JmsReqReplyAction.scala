@@ -2,7 +2,7 @@ package com.bluedevel.gatling.jms
 
 import io.gatling.core.Predef._
 import io.gatling.core.action.Chainable
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, Actor, Props }
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.result.message.{RequestMessage, OK}
@@ -10,26 +10,36 @@ import java.util.{Hashtable => JHashtable}
 import javax.naming._
 import javax.jms._
 
-class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes, val protocol: JmsProtocol) extends Chainable {
+class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes, 
+    val protocol: JmsProtocol, val tracker: ActorRef) extends Chainable {
+
+  val responseHandler = new MessageListener { 
+    def onMessage(m: Message) = m match {
+      case tm : TextMessage => tracker ! MessageReceived(tm.getJMSCorrelationID, nowMillis)
+      case _ => println("received something else ??")
+    }
+  }
+
   val client = new SimpleJmsClient(protocol.connectionFactoryName,
     attributes.queueName,
     protocol.jmsUrl,
     protocol.username, 
     protocol.password, 
-    protocol.contextFactory)
+    protocol.contextFactory,
+    responseHandler)
 
   def execute(session: io.gatling.core.Predef.Session) {
     val start = nowMillis
-    client.sendTextMessage(attributes.textMessage)
+    val msgid = client.sendTextMessage(attributes.textMessage)
     val end = nowMillis
-    DataWriter.tell(RequestMessage(session.scenarioName, session.userId, Nil, "test",
-      start, end, start, end, OK, None, Nil))
+    tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId)
     next ! session
   }
 }
 
 class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-    val username: Option[String], val password: Option[String], val contextFactory: String) {
+    val username: Option[String], val password: Option[String], val contextFactory: String,
+    val responseHandler: MessageListener) {
 
   // create InitialContext
   val properties = new JHashtable[String, String]
@@ -64,37 +74,30 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   val producer = session.createProducer(destination)
   producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
 
-  val consumer = session.createConsumer(replyQ)
+  val consumerQ = session.createConsumer(replyQ)
+  consumerQ.setMessageListener(responseHandler)
 
-  def sendTextMessage(messageText : String) {
+  def sendTextMessage(messageText : String): String = {
     val message = session.createTextMessage(messageText)
     sendMessage(message)
   }
 
-  def sendMessage(message : Message) {
+  def sendMessage(message: Message): String = {
     try {
 
       message.setJMSReplyTo(replyQ)
       producer.send(message)
-
-      val response = consumer.receive()
-      response match {
-        case tm : TextMessage => /* do nothing println("response: " + tm.getText) */
-        case null => /* do nothing */
-        case _ => println("received something else ??")
-      }
+      // return the message id
+      message.getJMSMessageID
 
     } catch {
-      case ne : NamingException =>
-        ne.printStackTrace(System.err)
-        System.exit(0)
-      case jmse : JMSException =>
-        jmse.printStackTrace(System.err)
-        System.exit(0)
+
       case e : Exception =>
         println("Got other/unexpected exception")
         e.printStackTrace(System.err)
         System.exit(0)
+        "<< never get here, system exit will solve it >>"
+
     }
   }
 

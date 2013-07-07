@@ -36,7 +36,8 @@ class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
    */
   def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
     val jmsProtocol = protocolConfigurationRegistry.getProtocolConfiguration(JmsProtocol.default)
-    system.actorOf(Props(new JmsReqReplyAction(next, attributes, jmsProtocol)))
+    val tracker = system.actorOf(Props[JmsRequestTrackerActor])
+    system.actorOf(Props(new JmsReqReplyAction(next, attributes, jmsProtocol, tracker)))
   }
 }
 
