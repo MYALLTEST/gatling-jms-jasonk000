@@ -2,6 +2,9 @@ package com.bluedevel.gatling.jms
 
 import io.gatling.core.config.ProtocolConfiguration
 
+/**
+ * Wraps a JMS protocol configuration
+ */
 object JmsProtocol {
   val default = JmsProtocol(
     contextFactory = "?",

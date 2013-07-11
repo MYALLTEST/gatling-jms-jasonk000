@@ -46,10 +46,6 @@ $ gradle jar
 $ cp ~/code/gatling-jms/build/libs/gatling-jms.jar ~/gatling/libs
 ```
 
-Caveats
-===========
-Currently this library runs synchronously in the Gatling query threads. This makes it susceptible to 'coordinated omission' issues in the results.
-
 TODO
 ===========
 Plenty. See https://github.com/jasonk000/gatling-jms/issues
