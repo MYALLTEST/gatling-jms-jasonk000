@@ -1,9 +1,17 @@
 package com.bluedevel.gatling.jms
 
+
+/**
+ * JmsProtocolBuilder
+ */
 object JmsProtocolBuilder {
   val default = new JmsProtocolBuilder(JmsProtocol.default)
 }
 
+/**
+ * JmsProtocolBuilder allows building of the JMS protocol
+ * This allows multiple scenarios or jms methods to refer to a single protocol configuration
+ */
 case class JmsProtocolBuilder(protocol: JmsProtocol) {
 
   def connectionFactoryName(cf: String) = copy(protocol = protocol.copy(connectionFactoryName = cf))
