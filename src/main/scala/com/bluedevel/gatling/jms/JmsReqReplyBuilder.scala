@@ -3,6 +3,7 @@ package com.bluedevel.gatling.jms
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import akka.actor._
+import scala.collection.immutable.ListMap
 
 /**
  * JmsAttributes carries around the JMS settings
@@ -10,7 +11,8 @@ import akka.actor._
 case class JmsAttributes(
   requestName: String,
   queueName: String,
-  textMessage: String)
+  textMessage: String,
+  messageProperties: Map[String, Object])
 
 /**
  * Builds a request reply JMS
@@ -19,7 +21,8 @@ object JmsReqReplyBuilder {
   def apply(requestName: String) = new JmsReqReplyBuilder(JmsAttributes(
       requestName = requestName,
       queueName = "?", 
-      textMessage = "?"))
+      textMessage = "?",
+      messageProperties = new ListMap[String, Object]))
 }
 
 /**
@@ -30,6 +33,8 @@ class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
 
   def queue(q: String) = new JmsReqReplyBuilder(attributes.copy(queueName = q))
   def textMessage(text: String) = new JmsReqReplyBuilder(attributes.copy(textMessage = text))
+  def addProperty(key: String, value: Object) = 
+    new JmsReqReplyBuilder(attributes.copy(messageProperties = attributes.messageProperties + ((key, value))))
 
   /**
    * Builds an action instance

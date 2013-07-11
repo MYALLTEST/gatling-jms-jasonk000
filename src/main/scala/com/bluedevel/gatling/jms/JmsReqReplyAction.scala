@@ -30,7 +30,7 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
 
   def execute(session: io.gatling.core.Predef.Session) {
     val start = nowMillis
-    val msgid = client.sendTextMessage(attributes.textMessage)
+    val msgid = client.sendTextMessage(attributes.textMessage, attributes.messageProperties)
     val end = nowMillis
     tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId)
     next ! session
@@ -77,8 +77,11 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   val consumerQ = session.createConsumer(replyQ)
   consumerQ.setMessageListener(responseHandler)
 
-  def sendTextMessage(messageText : String): String = {
+  def sendTextMessage(messageText : String, props: Map[String, Object]): String = {
     val message = session.createTextMessage(messageText)
+    props.foreach { 
+      case (key: String, value: Object) => message.setObjectProperty(key, value)
+    }
     sendMessage(message)
   }
 

@@ -26,7 +26,8 @@ class TestJmsDsl extends Simulation {
   val scn = scenario("JMS DSL test").repeat(1) {
     exec(jms("req reply testing").reqreply
       .queue("jmstestq")
-      .textMessage("hello from gatling jms dsl"))
+      .textMessage("hello from gatling jms dsl")
+      .addProperty("test_header", "test_value"))
   }
 
   setUp(scn.protocolConfig(jmsConfig).inject(
