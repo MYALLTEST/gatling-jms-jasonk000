@@ -18,6 +18,7 @@ case class JmsProtocolBuilder(protocol: JmsProtocol) {
   def url(theUrl: String) = copy(protocol = protocol.copy(jmsUrl = theUrl))
   def credentials(user: String, pass: String) = copy(protocol = protocol.copy(username = Some(user), password = Some(pass)))
   def contextFactory(factory: String) = copy(protocol = protocol.copy(contextFactory = factory))
+  def listenerCount(count: Int) = copy(protocol = protocol.copy(listenerCount = count))
 
   def build = {
     protocol

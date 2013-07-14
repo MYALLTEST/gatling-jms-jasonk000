@@ -14,8 +14,7 @@ import javax.jms._
  * Trivial JMS client, allows sending messages and use of a MessageListener
  */
 class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-    val username: Option[String], val password: Option[String], val contextFactory: String,
-    val responseHandler: MessageListener) {
+    val username: Option[String], val password: Option[String], val contextFactory: String) {
 
   // create InitialContext
   val properties = new JHashtable[String, String]
@@ -50,15 +49,15 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   val producer = session.createProducer(destination)
   producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
 
-  // set up the reply queue listener
-  val replyConsumer = session.createConsumer(replyQ)
-  replyConsumer.setMessageListener(responseHandler)
-
+  /**
+   * Gets a new consumer for the reply queue
+   */
+  def createReplyConsumer = conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyQ)
 
   /**
    * Wrapper to send a TextMessage, returns the message ID of the sent message
    */
-  def sendTextMessage(messageText : String): String = {
+  def sendTextMessage(messageText : String, props: Map[String, Object]): String = {
     val message = session.createTextMessage(messageText)
     props.foreach {
       case (key: String, value: Object) => message.setObjectProperty(key, value)
@@ -74,8 +73,10 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 
       message.setJMSReplyTo(replyQ)
       producer.send(message)
+
       // return the message id
       message.getJMSMessageID
+
 
     } catch {
 

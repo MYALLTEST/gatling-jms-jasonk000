@@ -11,7 +11,8 @@ object JmsProtocol {
     connectionFactoryName = "?",
     jmsUrl = "?",
     username = None,
-    password = None)
+    password = None,
+    listenerCount = 1)
 }
 
 case class JmsProtocol (
@@ -19,5 +20,7 @@ case class JmsProtocol (
   connectionFactoryName: String,
   jmsUrl: String,
   username: Option[String],
-  password: Option[String]
+  password: Option[String],
+  listenerCount: Int
 ) extends ProtocolConfiguration 
+

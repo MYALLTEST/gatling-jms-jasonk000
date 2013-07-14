@@ -16,14 +16,6 @@ import javax.jms._
 class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes, 
     val protocol: JmsProtocol, val tracker: ActorRef) extends Chainable {
 
-  // define a single response handler; to be used by SimpleJmsClient
-  val responseHandler = new MessageListener { 
-    def onMessage(m: Message) = m match {
-      case tm : TextMessage => tracker ! MessageReceived(tm.getJMSCorrelationID, nowMillis)
-      case _ => println("received something else ??")
-    }
-  }
-
   /**
    * Create a client to refer to
    */
@@ -32,8 +24,26 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
     protocol.jmsUrl,
     protocol.username, 
     protocol.password, 
-    protocol.contextFactory,
-    responseHandler)
+    protocol.contextFactory)
+
+  // set up a consumer from the queue
+  println("starting " + protocol.listenerCount + " listeners.")
+  for(i <- 1 to protocol.listenerCount) {
+
+    val thread = new Thread(new Runnable { def run = {
+      val replyConsumer = client.createReplyConsumer
+      while(true) {
+        val m = replyConsumer.receive()
+        m match {
+          case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
+          case _ => println("oops")
+        }
+      }
+    }})
+    thread.start
+
+  }
+  
 
   /**
    * Framework calls the execute() method to send a single request
@@ -44,8 +54,6 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
     val msgid = client.sendTextMessage(attributes.textMessage, attributes.messageProperties)
     val end = nowMillis
     // notify the tracker that a message was sent
-    tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId)
-    // go to next in chain
-    next ! session
+    tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId, attributes.checks, session, next)
   }
 }
