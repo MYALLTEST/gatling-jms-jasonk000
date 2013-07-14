@@ -19,6 +19,7 @@ import javax.jms.{ Message, TextMessage, MapMessage }
 class TestJmsDsl extends Simulation {
 
   def checkBodyCorrect(m: Message) = {
+    // this assumes that the service just does an "uppercase" transform on the text
     val BODY_SHOULD_BE = "HELLO FROM GATLING JMS DSL"
     m match {
       case tm: TextMessage => (tm.getText.toString == BODY_SHOULD_BE)
