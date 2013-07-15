@@ -54,14 +54,57 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
    */
   def createReplyConsumer = conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyQ)
 
+
+  /**
+   * Writes a property map to the message properties
+   */
+  private def writePropsToMessage(props: Map[String, Object], message: Message) = {
+    props.foreach {
+      case (key: String, value: Object) => message.setObjectProperty(key, value)
+    }
+  }
+  
+  /**
+   * Wrapper to send a BytesMessage, returns the message ID of the sent message
+   */
+  def sendBytesMessage(bytes: Array[Byte], props: Map[String, Object]): String = {
+    val message = session.createBytesMessage
+    message.writeBytes(bytes)
+    writePropsToMessage(props, message)
+    sendMessage(message)
+  }
+
+  /**
+   * Wrapper to send a MapMessage, returns the message ID of the sent message
+   * <p>
+   * Note that map must match the javax.jms.MapMessage contract ie: "This method works only
+   * for the objectified primitive object types (Integer, Double, Long ...), String objects,
+   * and byte arrays."
+   */
+  def sendMapMessage(map: Map[String, Object], props: Map[String, Object]): String = {
+    val message = session.createMapMessage
+    map.foreach {
+      case (key: String, value: Object) => message.setObject(key, value)
+    }
+    writePropsToMessage(props, message)
+    sendMessage(message)
+  }
+
+  /**
+   * Wrapper to send an ObjectMessage, returns the message ID of the sent message
+   */ 
+  def sendObjectMessage(o: java.io.Serializable, props: Map[String, Object]): String = {
+    val message = session.createObjectMessage(o)
+    writePropsToMessage(props, message)
+    sendMessage(message)
+  }
+
   /**
    * Wrapper to send a TextMessage, returns the message ID of the sent message
    */
   def sendTextMessage(messageText : String, props: Map[String, Object]): String = {
     val message = session.createTextMessage(messageText)
-    props.foreach {
-      case (key: String, value: Object) => message.setObjectProperty(key, value)
-    }
+    writePropsToMessage(props, message)
     sendMessage(message)
   }
 

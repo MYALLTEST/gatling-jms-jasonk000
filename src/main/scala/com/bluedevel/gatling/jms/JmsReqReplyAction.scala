@@ -49,9 +49,16 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
    * Framework calls the execute() method to send a single request
    */
   def execute(session: io.gatling.core.Predef.Session) {
+    import JmsMessageClass._
+
     // send the message
     val start = nowMillis
-    val msgid = client.sendTextMessage(attributes.textMessage, attributes.messageProperties)
+    val msgid = attributes.messageType match {
+      case BytesJmsMessage => client.sendBytesMessage(attributes.bytesMessage, attributes.messageProperties)
+      case MapJmsMessage =>  client.sendMapMessage(attributes.mapMessage, attributes.messageProperties)
+      case ObjectJmsMessage => client.sendObjectMessage(attributes.objectMessage, attributes.messageProperties)
+      case TextJmsMessage => client.sendTextMessage(attributes.textMessage, attributes.messageProperties)
+    }
     val end = nowMillis
     // notify the tracker that a message was sent
     tracker ! MessageSent(msgid, start, end, session.scenarioName, session.userId, attributes.checks, session, next)

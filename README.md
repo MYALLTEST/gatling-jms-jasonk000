@@ -37,7 +37,11 @@ class TestJmsDsl extends Simulation {
   val scn = scenario("JMS DSL test").repeat(1) {
     exec(jms("req reply testing").reqreply
       .queue("jmstestq")
+// -- four message types are supported; only StreamMessage is not currently supported
       .textMessage("hello from gatling jms dsl")
+//      .bytesMessage(new Array[Byte](1))
+//      .mapMessage(new ListMap[String, Object])
+//      .objectMessage("hello!")
       .addProperty("test_header", "test_value")
       .addCheck(checkBodyCorrect)
     )
