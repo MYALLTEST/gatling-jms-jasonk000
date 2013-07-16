@@ -1,7 +1,7 @@
 package com.bluedevel.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.config.ProtocolRegistry
 import akka.actor._
 import scala.collection.immutable.ListMap
 import javax.jms.Message
@@ -72,8 +72,8 @@ class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
   /**
    * Builds an action instance
    */
-  def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-    val jmsProtocol = protocolConfigurationRegistry.getProtocolConfiguration(JmsProtocol.default)
+  def build(next: ActorRef) = {
+    val jmsProtocol = ProtocolRegistry.registry.getProtocol(JmsProtocol.default)
     val tracker = system.actorOf(Props[JmsRequestTrackerActor])
     system.actorOf(Props(new JmsReqReplyAction(next, attributes, jmsProtocol, tracker)))
   }

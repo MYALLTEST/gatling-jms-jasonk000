@@ -11,6 +11,6 @@ repositories {
 
 dependencies {
   compile 'org.scala-lang:scala-library:2.10.1'
-  compile 'io.gatling:gatling-core:2.0.0-M2'
+  compile 'io.gatling:gatling-core:2.0.0-M3a'
   compile 'javax.jms:jms-api:1.1-rev-1'
 }

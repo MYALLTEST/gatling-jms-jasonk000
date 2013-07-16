@@ -73,7 +73,7 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
     }
 
     // notify the tracker that a message was sent
-    tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next)
+    tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
 
   }
 }

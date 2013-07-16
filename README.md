@@ -39,9 +39,9 @@ class TestJmsDsl extends Simulation {
     )
   }
 
-  setUp(scn.protocolConfig(jmsConfig).inject(
+  setUp(scn.inject(
        rampRate(10 usersPerSec) to (1000 usersPerSec) during (2 minutes)
-    ))
+    )).protocols(jmsConfig)
 
   /**
    * Checks if a body text is correct.
@@ -63,12 +63,22 @@ class TestJmsDsl extends Simulation {
 
 ```
 
-Building
+Using Gatling-JMS
 ===========
-You'll need to download some JARs from here: http://repository.excilys.com/content/groups/public/
+You can download a copy from build/libs/gatling-jms.jar
+Place this into gatling/lib
+You'll also need: jms-1.1.jar, and your JMS driver jar files and dependencies. Place these into gatling/lib too.
+
+Now, you can use the DSL in your simulations. See above example snippet.
+
+
+Building from source
+===========
+You may need to download some JARs from here if the gradle config isn't working: http://repository.excilys.com/content/groups/public/
+
 ```
-$ gradle jar
-$ cp ~/code/gatling-jms/build/libs/gatling-jms.jar ~/gatling/libs
+$ gradle clean jar
+$ cp build/libs/gatling-jms.jar ~/gatling/libs
 ```
 
 TODO

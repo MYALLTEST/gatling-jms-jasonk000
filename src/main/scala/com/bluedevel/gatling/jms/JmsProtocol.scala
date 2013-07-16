@@ -1,6 +1,6 @@
 package com.bluedevel.gatling.jms
 
-import io.gatling.core.config.ProtocolConfiguration
+import io.gatling.core.config.Protocol
 
 /**
  * Wraps a JMS protocol configuration
@@ -27,5 +27,5 @@ case class JmsProtocol (
   password: Option[String],
   listenerCount: Int,
   deliveryMode: Int
-) extends ProtocolConfiguration 
+) extends Protocol
 
