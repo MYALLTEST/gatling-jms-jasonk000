@@ -7,18 +7,21 @@ import io.gatling.core.config.ProtocolConfiguration
  */
 object JmsProtocol {
   val default = JmsProtocol(
-    contextFactory = "?",
-    connectionFactoryName = "?",
-    jmsUrl = "?",
+    contextFactory = None,
+    connectionFactoryName = None,
+    jmsUrl = None,
     username = None,
     password = None,
     listenerCount = 1)
 }
 
+/**
+ * Wraps a JMS protocol configuration
+ */ 
 case class JmsProtocol (
-  contextFactory: String,
-  connectionFactoryName: String,
-  jmsUrl: String,
+  contextFactory: Option[String],
+  connectionFactoryName: Option[String],
+  jmsUrl: Option[String],
   username: Option[String],
   password: Option[String],
   listenerCount: Int

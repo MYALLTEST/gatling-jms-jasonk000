@@ -7,25 +7,6 @@ import scala.collection.immutable.ListMap
 import javax.jms.Message
 
 /**
- * JmsAttributes carries around the JMS settings
- */
-case class JmsAttributes(
-  requestName: String,
-  queueName: String,
-  textMessage: String,
-  bytesMessage: Array[Byte],
-  mapMessage: Map[String, Object],
-  objectMessage: java.io.Serializable,
-  messageProperties: Map[String, Object],
-  messageType: JmsMessageClass.JmsMessageClass,
-  checks: List[JmsCheck])
-
-object JmsMessageClass extends Enumeration {
-  type JmsMessageClass = Value
-  val BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage = Value
-}
-
-/**
  * Builds a request reply JMS
  */
 object JmsReqReplyBuilder {
@@ -43,27 +24,49 @@ object JmsReqReplyBuilder {
 
 /**
  * Builds a JMS request reply 
+ * <p>
+ * Note that StreamMessage is not presently supported - it would need a bit of cleverness to build a nice API.
+ * Happy to take suggestions and pull requests.
  */
 class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
   val system = akka.actor.ActorSystem("system")
 
   import JmsMessageClass._
 
-  // set queue name
+  /**
+   * Set the queue name
+   */
   def queue(q: String) = new JmsReqReplyBuilder(attributes.copy(queueName = q))
 
-  // various supported message types
-  // note that StreamMessage is not presently supported; would need a bit of work to make a simple API
+  /**
+   * Send a TextMessage
+   */
   def textMessage(text: String) = new JmsReqReplyBuilder(attributes.copy(textMessage = text, messageType = TextJmsMessage))
+
+  /**
+   * Send a BytesMessage
+   */
   def bytesMessage(bytes: Array[Byte]) = new JmsReqReplyBuilder(attributes.copy(bytesMessage = bytes, messageType = BytesJmsMessage))
+  
+  /**
+   * Send a MapMessage
+   */
   def mapMessage(map: Map[String, Object]) = new JmsReqReplyBuilder(attributes.copy(mapMessage = map, messageType = MapJmsMessage))
+
+  /**
+   * Send an ObjectMessage
+   */
   def objectMessage(o: java.io.Serializable) = new JmsReqReplyBuilder(attributes.copy(objectMessage = o, messageType = ObjectJmsMessage))
 
-  // add jms message properties
+  /**
+   * Add JMS message properties (aka headers) to the outbound message
+   */
   def addProperty(key: String, value: Object) = 
     new JmsReqReplyBuilder(attributes.copy(messageProperties = attributes.messageProperties + ((key, value))))
 
-  // checks that will be run on the response events
+  /**
+   * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
+   */
   def addCheck(checks: JmsCheck*) = new JmsReqReplyBuilder(attributes.copy(checks = attributes.checks ::: checks.toList))
 
   /**

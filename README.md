@@ -14,25 +14,16 @@ import io.gatling.core.Predef._
 import com.bluedevel.gatling.jms.Predef._
 import scala.concurrent.duration._
 import bootstrap._
-import javax.jms.{ Message, TextMessage, MapMessage }
+import javax.jms.{ Message, TextMessage }
 
 class TestJmsDsl extends Simulation {
-
-  def checkBodyCorrect(m: Message) = {
-    // this assumes that the service just does an "uppercase" transform on the text
-    val BODY_SHOULD_BE = "HELLO FROM GATLING JMS DSL"
-    m match {
-      case tm: TextMessage => (tm.getText.toString == BODY_SHOULD_BE)
-      case _ => false
-    }
-  }
 
   val jmsConfig = JmsProtocolBuilder.default
     .connectionFactoryName(FFMQConstants.JNDI_CONNECTION_FACTORY_NAME)
     .url("tcp://localhost:10002")
-    .credentials("x", "x")
+    .credentials("user", "secret")
     .contextFactory(FFMQConstants.JNDI_CONTEXT_FACTORY)
-    .listenerCount(3)
+    .listenerCount(1)
 
   val scn = scenario("JMS DSL test").repeat(1) {
     exec(jms("req reply testing").reqreply
@@ -43,13 +34,23 @@ class TestJmsDsl extends Simulation {
 //      .mapMessage(new ListMap[String, Object])
 //      .objectMessage("hello!")
       .addProperty("test_header", "test_value")
-      .addCheck(checkBodyCorrect)
+      .addCheck(checkBodyTextCorrect)
     )
   }
 
   setUp(scn.protocolConfig(jmsConfig).inject(
        rampRate(10 usersPerSec) to (1000 usersPerSec) during (2 minutes)
     ))
+
+  def checkBodyTextCorrect(m: Message) = {
+    // this assumes that the service just does an "uppercase" transform on the text
+    val BODY_SHOULD_BE = "HELLO FROM GATLING JMS DSL"
+    m match {
+      case tm: TextMessage => (tm.getText.toString == BODY_SHOULD_BE)
+      case _ => false
+    }
+  }
+
 }
 
 ```

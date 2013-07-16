@@ -42,11 +42,12 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
   println("Got Connection " + conn.toString())
 
+  // reply queue and target destination/producer
   val replyQ = session.createTemporaryQueue()
-
   val destination = session.createQueue(queueName)
-
   val producer = session.createProducer(destination)
+
+  // delivery mode non_persistent TODO this should be settable in the attributes
   producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
 
   /**
@@ -110,26 +111,17 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 
   /**
    * Sends a JMS message, returns the message ID of the sent message
+   * <p>
+   * Note that exceptions are allowed to bubble up to the caller
    */
   def sendMessage(message: Message): String = {
-    try {
 
-      message.setJMSReplyTo(replyQ)
-      producer.send(message)
+    message.setJMSReplyTo(replyQ)
+    producer.send(message)
 
-      // return the message id
-      message.getJMSMessageID
+    // return the message id
+    message.getJMSMessageID
 
-
-    } catch {
-
-      case e : Exception =>
-        println("Got other/unexpected exception")
-        e.printStackTrace(System.err)
-        System.exit(0)
-        "<< never get here, system exit will solve it >>"
-
-    }
   }
 
 }
