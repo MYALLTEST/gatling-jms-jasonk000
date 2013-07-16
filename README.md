@@ -24,6 +24,7 @@ class TestJmsDsl extends Simulation {
     .credentials("user", "secret")
     .contextFactory(FFMQConstants.JNDI_CONTEXT_FACTORY)
     .listenerCount(1)
+    .deliveryMode(javax.jms.DeliveryMode.PERSISTENT)
 
   val scn = scenario("JMS DSL test").repeat(1) {
     exec(jms("req reply testing").reqreply

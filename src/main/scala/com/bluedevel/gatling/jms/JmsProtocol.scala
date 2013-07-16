@@ -12,7 +12,8 @@ object JmsProtocol {
     jmsUrl = None,
     username = None,
     password = None,
-    listenerCount = 1)
+    listenerCount = 1,
+    deliveryMode = javax.jms.DeliveryMode.NON_PERSISTENT)
 }
 
 /**
@@ -24,6 +25,7 @@ case class JmsProtocol (
   jmsUrl: Option[String],
   username: Option[String],
   password: Option[String],
-  listenerCount: Int
+  listenerCount: Int,
+  deliveryMode: Int
 ) extends ProtocolConfiguration 
 

@@ -24,7 +24,8 @@ class JmsReqReplyAction(val next : ActorRef, val attributes: JmsAttributes,
   val client = new SimpleJmsClient(protocol.connectionFactoryName.get,
     attributes.queueName, protocol.jmsUrl.get,
     protocol.username, protocol.password,
-    protocol.contextFactory.get)
+    protocol.contextFactory.get,
+    protocol.deliveryMode)
 
   // start the requested number of listener threads
   for(i <- 1 to protocol.listenerCount) {

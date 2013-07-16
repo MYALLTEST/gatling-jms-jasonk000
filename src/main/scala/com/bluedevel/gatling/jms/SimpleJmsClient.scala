@@ -14,7 +14,8 @@ import javax.jms._
  * Trivial JMS client, allows sending messages and use of a MessageListener
  */
 class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-    val username: Option[String], val password: Option[String], val contextFactory: String) {
+    val username: Option[String], val password: Option[String], val contextFactory: String,
+    val deliveryMode: Int) {
 
   // create InitialContext
   val properties = new JHashtable[String, String]
@@ -47,8 +48,8 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   val destination = session.createQueue(queueName)
   val producer = session.createProducer(destination)
 
-  // delivery mode non_persistent TODO this should be settable in the attributes
-  producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
+  // delivery mode based on input from caller
+  producer.setDeliveryMode(deliveryMode)
 
   /**
    * Gets a new consumer for the reply queue
