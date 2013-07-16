@@ -43,6 +43,13 @@ class TestJmsDsl extends Simulation {
        rampRate(10 usersPerSec) to (1000 usersPerSec) during (2 minutes)
     ))
 
+  /**
+   * Checks if a body text is correct.
+   * <p>
+   * Note the contract on the checks is Message => Boolean, so you can perform
+   * any processing you like on the message (check headers, check type, check body,
+   * complex checks, etc).
+   */
   def checkBodyTextCorrect(m: Message) = {
     // this assumes that the service just does an "uppercase" transform on the text
     val BODY_SHOULD_BE = "HELLO FROM GATLING JMS DSL"
@@ -66,7 +73,9 @@ $ cp ~/code/gatling-jms/build/libs/gatling-jms.jar ~/gatling/libs
 
 TODO
 ===========
-Plenty. See https://github.com/jasonk000/gatling-jms/issues
+Most of the obvious core API is built. Need to add some unit test coverage and possibly some additional checks to make the check DSL more fluent.
+
+Now available for public testing & use. Please raise any issues - https://github.com/jasonk000/gatling-jms/issues
 
 License
 ===========
