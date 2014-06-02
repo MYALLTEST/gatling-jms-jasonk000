@@ -118,12 +118,17 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
   def sendMessage(message: Message): String = {
 
     message.setJMSReplyTo(replyQ)
+    // Using an uuid for the CorrelationID
+    // Setting it 'cause JMS provider might not use it
+    message.setJMSCorrelationID(uuid)
     producer.send(message)
 
     // return the message id
     message.getJMSMessageID
 
   }
+
+  def uuid = java.util.UUID.randomUUID.toString
 
 }
 
