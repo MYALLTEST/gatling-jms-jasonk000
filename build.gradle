@@ -1,4 +1,8 @@
 apply plugin: 'scala'
+apply plugin: 'maven'
+
+group		= 'com.bluedevel.gatling'
+version		= '0.1.0'
 
 repositories {
   maven {
