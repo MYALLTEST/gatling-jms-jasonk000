@@ -124,7 +124,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
     producer.send(message)
 
     // return the message id
-    message.getJMSMessageID
+    message.getJMSCorrelationID
 
   }
 
